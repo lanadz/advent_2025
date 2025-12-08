@@ -39,7 +39,7 @@ fn main() -> std::io::Result<()> {
             _ => Operation::Skip,
         };
 
-        let result = calculate(starting_point, &operation); // add error handling
+        let result = calculate_part1(starting_point, &operation); // add error handling
         println!("{} {}: {}", starting_point, operation.to_string(), result);
         starting_point = result;
         if starting_point == 0 {
@@ -51,7 +51,7 @@ fn main() -> std::io::Result<()> {
     Ok(())
 }
 
-fn calculate(starting_point: u8, operation: &Operation) -> u8 {
+fn calculate_part1(starting_point: u8, operation: &Operation) -> u8 {
     let result = match *operation {
         Operation::L(dist) => {
             let mut res: i32 = starting_point as i32 - dist as i32 % 100;
@@ -77,19 +77,19 @@ mod tests {
     use super::*;
 
     #[test]
-    fn calc_works() {
-        assert_eq!(calculate(50, &Operation::L(5)), 45);
-        assert_eq!(calculate(50, &Operation::R(5)), 55);
-        assert_eq!(calculate(99, &Operation::R(5)), 4);
-        assert_eq!(calculate(2, &Operation::L(5)), 97);
-        assert_eq!(calculate(2, &Operation::L(2)), 0);
-        assert_eq!(calculate(98, &Operation::R(2)), 0);
+    fn calculate_part1_works() {
+        assert_eq!(calculate_part1(50, &Operation::L(5)), 45);
+        assert_eq!(calculate_part1(50, &Operation::R(5)), 55);
+        assert_eq!(calculate_part1(99, &Operation::R(5)), 4);
+        assert_eq!(calculate_part1(2, &Operation::L(5)), 97);
+        assert_eq!(calculate_part1(2, &Operation::L(2)), 0);
+        assert_eq!(calculate_part1(98, &Operation::R(2)), 0);
         // 100 rotations are from 0-99, so it doesnt matter 45, or 145 or 445 -> it's as if you have only 45
-        assert_eq!(calculate(2, &Operation::R(443)), 45);
+        assert_eq!(calculate_part1(2, &Operation::R(443)), 45);
     }
 
     #[test]
-    fn calc_from_example_tests() {
+    fn calculate_part1_from_example_tests() {
         // The dial starts by pointing at 50.
         // The dial is rotated L68 to point at 82.
         // The dial is rotated L30 to point at 52.
@@ -101,15 +101,15 @@ mod tests {
         // The dial is rotated L99 to point at 0.
         // The dial is rotated R14 to point at 14.
         // The dial is rotated L82 to point at 32.
-        assert_eq!(calculate(50, &Operation::L(68)), 82);
-        assert_eq!(calculate(82, &Operation::L(30)), 52);
-        assert_eq!(calculate(52, &Operation::R(48)), 0);
-        assert_eq!(calculate(0, &Operation::L(5)), 95);
-        assert_eq!(calculate(95, &Operation::R(60)), 55);
-        assert_eq!(calculate(55, &Operation::L(55)), 0);
-        assert_eq!(calculate(0, &Operation::L(1)), 99);
-        assert_eq!(calculate(99, &Operation::L(99)), 0);
-        assert_eq!(calculate(0, &Operation::R(14)), 14);
-        assert_eq!(calculate(14, &Operation::L(82)), 32);
+        assert_eq!(calculate_part1(50, &Operation::L(68)), 82);
+        assert_eq!(calculate_part1(82, &Operation::L(30)), 52);
+        assert_eq!(calculate_part1(52, &Operation::R(48)), 0);
+        assert_eq!(calculate_part1(0, &Operation::L(5)), 95);
+        assert_eq!(calculate_part1(95, &Operation::R(60)), 55);
+        assert_eq!(calculate_part1(55, &Operation::L(55)), 0);
+        assert_eq!(calculate_part1(0, &Operation::L(1)), 99);
+        assert_eq!(calculate_part1(99, &Operation::L(99)), 0);
+        assert_eq!(calculate_part1(0, &Operation::R(14)), 14);
+        assert_eq!(calculate_part1(14, &Operation::L(82)), 32);
     }
 }
