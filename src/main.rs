@@ -11,10 +11,21 @@ use std::io::{BufRead, BufReader};
 enum Operation {
     L(u16),
     R(u16),
+    Skip,
+}
+
+impl Operation {
+    fn to_string(&self) -> String {
+        match self {
+            Operation::L(dist) => format!("L{}", dist),
+            Operation::R(dist) => format!("R{}", dist),
+            Operation::Skip => "invalid".to_string(),
+        }
+    }
 }
 
 fn main() -> std::io::Result<()> {
-    let file = File::open("src/input/password_input_short")?;
+    let file = File::open("src/input/password_input_final")?;
     let reader = BufReader::new(file);
     let mut password = 0;
     let mut starting_point = 50;
@@ -22,13 +33,15 @@ fn main() -> std::io::Result<()> {
         let line = line?;
         let (dir, dist) = line.split_at(1);
         let dist: u16 = dist.parse().unwrap(); // add error handling
-        let operation: Option<Operation> = match dir {
-            "R" => Some(Operation::R(dist)),
-            "L" => Some(Operation::L(dist)),
-            _ => None,
+        let operation: Operation = match dir {
+            "R" => Operation::R(dist),
+            "L" => Operation::L(dist),
+            _ => Operation::Skip,
         };
-        println!("{}", starting_point);
-        starting_point = calculate(starting_point, operation.unwrap()); // add error handling
+
+        let result = calculate(starting_point, &operation); // add error handling
+        println!("{} {}: {}", starting_point, operation.to_string(), result);
+        starting_point = result;
         if starting_point == 0 {
             password += 1
         }
@@ -38,22 +51,23 @@ fn main() -> std::io::Result<()> {
     Ok(())
 }
 
-fn calculate(starting_point: u8, operation: Operation) -> u8 {
-    let result = match operation {
+fn calculate(starting_point: u8, operation: &Operation) -> u8 {
+    let result = match *operation {
         Operation::L(dist) => {
-            let mut res: i32 = starting_point as i32 - dist as i32;
+            let mut res: i32 = starting_point as i32 - dist as i32 % 100;
             if res < 0 {
                 res = res + 100
             }
             res
         }
         Operation::R(dist) => {
-            let mut res: i32 = starting_point as i32 + dist as i32;
+            let mut res: i32 = starting_point as i32 + dist as i32 % 100;
             if res > 99 {
                 res = res - 100;
             }
             res
         }
+        Operation::Skip => 0,
     };
     result as u8
 }
@@ -64,12 +78,38 @@ mod tests {
 
     #[test]
     fn calc_works() {
-        assert_eq!(calculate(50, Operation::L(5)), 45);
-        assert_eq!(calculate(50, Operation::R(5)), 55);
-        assert_eq!(calculate(99, Operation::R(5)), 4);
-        assert_eq!(calculate(2, Operation::L(5)), 97);
-        assert_eq!(calculate(2, Operation::L(2)), 0);
-        assert_eq!(calculate(98, Operation::R(2)), 0);
-        assert_eq!(calculate(98, Operation::R(443)), 2);
+        assert_eq!(calculate(50, &Operation::L(5)), 45);
+        assert_eq!(calculate(50, &Operation::R(5)), 55);
+        assert_eq!(calculate(99, &Operation::R(5)), 4);
+        assert_eq!(calculate(2, &Operation::L(5)), 97);
+        assert_eq!(calculate(2, &Operation::L(2)), 0);
+        assert_eq!(calculate(98, &Operation::R(2)), 0);
+        // 100 rotations are from 0-99, so it doesnt matter 45, or 145 or 445 -> it's as if you have only 45
+        assert_eq!(calculate(2, &Operation::R(443)), 45);
+    }
+
+    #[test]
+    fn calc_from_example_tests() {
+        // The dial starts by pointing at 50.
+        // The dial is rotated L68 to point at 82.
+        // The dial is rotated L30 to point at 52.
+        // The dial is rotated R48 to point at 0.
+        // The dial is rotated L5 to point at 95.
+        // The dial is rotated R60 to point at 55.
+        // The dial is rotated L55 to point at 0.
+        // The dial is rotated L1 to point at 99.
+        // The dial is rotated L99 to point at 0.
+        // The dial is rotated R14 to point at 14.
+        // The dial is rotated L82 to point at 32.
+        assert_eq!(calculate(50, &Operation::L(68)), 82);
+        assert_eq!(calculate(82, &Operation::L(30)), 52);
+        assert_eq!(calculate(52, &Operation::R(48)), 0);
+        assert_eq!(calculate(0, &Operation::L(5)), 95);
+        assert_eq!(calculate(95, &Operation::R(60)), 55);
+        assert_eq!(calculate(55, &Operation::L(55)), 0);
+        assert_eq!(calculate(0, &Operation::L(1)), 99);
+        assert_eq!(calculate(99, &Operation::L(99)), 0);
+        assert_eq!(calculate(0, &Operation::R(14)), 14);
+        assert_eq!(calculate(14, &Operation::L(82)), 32);
     }
 }
