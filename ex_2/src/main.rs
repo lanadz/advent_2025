@@ -20,21 +20,45 @@
 // Adding up all the invalid IDs in this example produces 1227775554.
 // What do you get if you add up all of the invalid IDs?
 
-fn main() {
-    println!("Hello, world!");
+use std::fs::File;
+use std::io::{BufRead, BufReader};
+use std::path::PathBuf;
+
+fn main() -> std::io::Result<()> {
+    let file = File::open(input_path("ranges_final"))?;
+    let reader = BufReader::new(file);
+    let mut invalid_ids: Vec<u64> = vec![];
+    for line in reader.lines() {
+        let line = line?;
+        println!("{}", line);
+        let ranges: Vec<&str> = line.split_terminator(",").collect();
+        for range in ranges {
+            let (start_str, end_str) = range
+                .split_once('-')
+                .expect("must have start and end separated by -");
+            invalid_ids.extend(collect_invalid_ids_for_range(start_str, end_str));
+        }
+    }
+    dbg!(&invalid_ids);
+    println!("Result: {}", invalid_ids.iter().sum::<u64>());
+    Ok(())
 }
 
-fn collect_invalid_ids_for_range(start: u64, end: u64) -> Vec<u64> {
-    let start_str = start.to_string();
-    let end_str = end.to_string();
+fn input_path(filename: &str) -> PathBuf {
+    PathBuf::from(env!("CARGO_MANIFEST_DIR"))
+        .join("src")
+        .join("input")
+        .join(filename)
+}
+
+fn collect_invalid_ids_for_range(start_str: &str, end_str: &str) -> Vec<u64> {
+    let start: u64 = start_str.parse().expect("not integer");
+    let end: u64 = end_str.parse().expect("not integer");
     let mut invalid_ids: Vec<u64> = vec![];
     let mut current_number = start;
     if check_range(&start_str, &end_str) {
         while current_number <= end {
-            println!("before {}", current_number);
-
             current_number = bump_to_even_digits(current_number);
-            println!("evaluating {}", current_number);
             if has_a_pattern(current_number) {
                 invalid_ids.push(current_number)
             } else {
@@ -44,8 +68,7 @@ fn collect_invalid_ids_for_range(start: u64, end: u64) -> Vec<u64> {
             match next_posible_patterned_number(current_number) {
                 Some(val) => current_number = val,
                 None => {}
-            } // how to override current number for iteration?
-            dbg!(current_number);
+            }
             if current_number > end {
                 return invalid_ids;
             }
@@ -128,39 +151,29 @@ mod tests {
 
     #[test]
     fn nex_pattern_works() {
-        assert_eq!(vec![11, 22], collect_invalid_ids_for_range(11, 22));
-        assert_eq!(vec![99], collect_invalid_ids_for_range(95, 115));
-        assert_eq!(vec![1010], collect_invalid_ids_for_range(998, 1012));
+        assert_eq!(vec![11, 22], collect_invalid_ids_for_range("11", "22"));
+        assert_eq!(vec![99], collect_invalid_ids_for_range("95", "115"));
+        assert_eq!(vec![1010], collect_invalid_ids_for_range("998", "1012"));
         assert_eq!(
             vec![1188511885],
-            collect_invalid_ids_for_range(1188511880, 1188511890)
+            collect_invalid_ids_for_range("1188511880", "1188511890")
         );
-        assert_eq!(vec![222222], collect_invalid_ids_for_range(222220, 222224));
+        assert_eq!(
+            vec![222222],
+            collect_invalid_ids_for_range("222220", "222224")
+        );
         assert_eq!(
             Vec::<u64>::new(),
-            collect_invalid_ids_for_range(1698522, 1698528)
+            collect_invalid_ids_for_range("1698522", "1698528")
         );
-        assert_eq!(vec![446446], collect_invalid_ids_for_range(446443, 446449));
+        assert_eq!(
+            vec![446446],
+            collect_invalid_ids_for_range("446443", "446449")
+        );
         assert_eq!(
             vec![38593859],
-            collect_invalid_ids_for_range(38593856, 38593862)
+            collect_invalid_ids_for_range("38593856", "38593862")
         );
-        assert_eq!(vec![11, 22], collect_invalid_ids_for_range(1, 22));
+        assert_eq!(vec![11, 22], collect_invalid_ids_for_range("1", "22"));
     }
-
-    // #[test]
-    // fn get_possible_pattern_works() {
-    //     assert_eq!(Some(11), get_possible_pattern(11, 22));
-    //     assert_eq!(Some(99), get_possible_pattern(95, 115));
-    //     assert_eq!(Some(1010), get_possible_pattern(998, 1012));
-    //     assert_eq!(
-    //         Some(1188511885),
-    //         get_possible_pattern(1188511880, 1188511890)
-    //     );
-    //     assert_eq!(Some(222222), get_possible_pattern(222220, 222224));
-    //     assert_eq!(None, get_possible_pattern(1698522, 1698528));
-    //     assert_eq!(Some(446446), get_possible_pattern(446443, 446449));
-    //     assert_eq!(Some(38593859), get_possible_pattern(38593856, 38593862));
-    //     assert_eq!(Some(11), get_possible_pattern(1, 22));
-    // }
 }
