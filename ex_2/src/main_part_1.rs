@@ -56,7 +56,7 @@ fn collect_invalid_ids_for_range(start_str: &str, end_str: &str) -> Vec<u64> {
     let end: u64 = end_str.parse().expect("not integer");
     let mut invalid_ids: Vec<u64> = vec![];
     let mut current_number = start;
-    if check_range(&start_str, &end_str) {
+    if check_range(start_str, end_str) {
         while current_number <= end {
             current_number = bump_to_even_digits(current_number);
             if has_a_pattern(current_number) {
@@ -65,10 +65,7 @@ fn collect_invalid_ids_for_range(start_str: &str, end_str: &str) -> Vec<u64> {
                 current_number += 1;
                 continue;
             }
-            match next_posible_patterned_number(current_number) {
-                Some(val) => current_number = val,
-                None => {}
-            }
+            if let Some(val) = next_posible_patterned_number(current_number) { current_number = val }
             if current_number > end {
                 return invalid_ids;
             }
@@ -101,7 +98,7 @@ fn next_posible_patterned_number(current_number: u64) -> Option<u64> {
 
 fn bump_to_even_digits(n: u64) -> u64 {
     let digits = n.to_string().len();
-    if digits % 2 == 0 {
+    if digits.is_multiple_of(2) {
         n
     } else {
         10u64.pow(digits as u32)
@@ -109,7 +106,7 @@ fn bump_to_even_digits(n: u64) -> u64 {
 }
 
 fn check_range(start: &str, end: &str) -> bool {
-    start.len() % 2 == 0 || end.len() % 2 == 0 || start.len() != end.len()
+    start.len().is_multiple_of(2) || end.len().is_multiple_of(2) || start.len() != end.len()
 }
 
 #[cfg(test)]

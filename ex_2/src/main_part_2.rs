@@ -76,7 +76,7 @@ fn has_a_pattern(number: u64) -> bool {
 
 fn find_pattern(pattern: &str, chunk: usize) -> bool {
     if chunk == 0 {
-        return false;
+        false
     } else {
         let chunks = (0..pattern.len()).step_by(chunk).map(|i| {
             let end = (i + chunk).min(pattern.len());
