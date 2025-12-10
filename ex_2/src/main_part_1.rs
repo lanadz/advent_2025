@@ -25,7 +25,7 @@ use std::io::{BufRead, BufReader};
 use std::path::PathBuf;
 
 fn main() -> std::io::Result<()> {
-    let file = File::open(input_path("ranges_final"))?;
+    let file = File::open(input_path("ranges_example"))?;
     let reader = BufReader::new(file);
     let mut invalid_ids: Vec<u64> = vec![];
     for line in reader.lines() {
@@ -150,7 +150,7 @@ mod tests {
     }
 
     #[test]
-    fn nex_pattern_works() {
+    fn collect_invalid_ids_for_range_test() {
         assert_eq!(vec![11, 22], collect_invalid_ids_for_range("11", "22"));
         assert_eq!(vec![99], collect_invalid_ids_for_range("95", "115"));
         assert_eq!(vec![1010], collect_invalid_ids_for_range("998", "1012"));
