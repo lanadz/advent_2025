@@ -5,9 +5,6 @@
 // - Starting at 5, apply L10 to land on 95, then R5 to land on 0.
 
 use std::fmt;
-use std::fs::File;
-use std::io::{BufRead, BufReader};
-use std::path::PathBuf;
 use std::str::FromStr;
 
 #[derive(Debug)]
@@ -42,19 +39,11 @@ impl FromStr for Operation {
     }
 }
 
-fn input_path(filename: &str) -> PathBuf {
-    PathBuf::from(env!("CARGO_MANIFEST_DIR"))
-        .join("src")
-        .join("input")
-        .join(filename)
-}
-
 fn main_1() -> std::io::Result<()> {
-    let file = File::open(input_path("password_input_final"))?;
-    let reader = BufReader::new(file);
     let mut password = 0;
     let mut starting_point = 50;
-    for line in reader.lines() {
+    let reader = file_read::read_to_buffer_lines("password_input_final")?;
+    for line in reader {
         let line = line?;
         let operation: Operation = line.parse().expect("invalid operation");
 
@@ -71,11 +60,10 @@ fn main_1() -> std::io::Result<()> {
 }
 
 fn main() -> std::io::Result<()> {
-    let file = File::open(input_path("password_input_final"))?;
-    let reader = BufReader::new(file);
     let mut password = 0;
     let mut starting_point = 50;
-    for line in reader.lines() {
+    let reader = file_read::read_to_buffer_lines("password_input_final")?;
+    for line in reader {
         let line = line?;
         let operation: Operation = line.parse().expect("invalid operation");
 

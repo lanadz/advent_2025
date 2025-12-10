@@ -5,3 +5,10 @@ version = 4
 [[package]]
 name = "ex_2"
 version = "0.1.0"
+dependencies = [
+ "file_read",
+]
+
+[[package]]
+name = "file_read"
+version = "0.1.0"

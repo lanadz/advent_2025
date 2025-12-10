@@ -20,15 +20,10 @@
 // Adding up all the invalid IDs in this example produces 1227775554.
 // What do you get if you add up all of the invalid IDs?
 
-use std::fs::File;
-use std::io::{BufRead, BufReader};
-use std::path::PathBuf;
-
 fn main() -> std::io::Result<()> {
-    let file = File::open(input_path("ranges_example"))?;
-    let reader = BufReader::new(file);
+    let reader = file_read::read_to_buffer_lines("password_input_final")?;
     let mut invalid_ids: Vec<u64> = vec![];
-    for line in reader.lines() {
+    for line in reader {
         let line = line?;
         println!("{}", line);
         let ranges: Vec<&str> = line.split_terminator(",").collect();
@@ -42,13 +37,6 @@ fn main() -> std::io::Result<()> {
     dbg!(&invalid_ids);
     println!("Result: {}", invalid_ids.iter().sum::<u64>());
     Ok(())
-}
-
-fn input_path(filename: &str) -> PathBuf {
-    PathBuf::from(env!("CARGO_MANIFEST_DIR"))
-        .join("src")
-        .join("input")
-        .join(filename)
 }
 
 fn collect_invalid_ids_for_range(start_str: &str, end_str: &str) -> Vec<u64> {
@@ -65,7 +53,9 @@ fn collect_invalid_ids_for_range(start_str: &str, end_str: &str) -> Vec<u64> {
                 current_number += 1;
                 continue;
             }
-            if let Some(val) = next_posible_patterned_number(current_number) { current_number = val }
+            if let Some(val) = next_posible_patterned_number(current_number) {
+                current_number = val
+            }
             if current_number > end {
                 return invalid_ids;
             }
