@@ -1,0 +1,7 @@
+[package]
+name = "ex_3"
+version = "0.1.0"
+edition = "2024"
+
+[dependencies]
+file_read = { path = "../file_read" }
