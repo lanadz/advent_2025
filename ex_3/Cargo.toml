@@ -3,5 +3,13 @@ name = "ex_3"
 version = "0.1.0"
 edition = "2024"
 
+[[bin]]
+name = "part1"
+path = "src/main_part_1.rs"
+
+[[bin]]
+name = "part2"
+path = "src/main_part_2.rs"
+
 [dependencies]
 file_read = { path = "../file_read" }
